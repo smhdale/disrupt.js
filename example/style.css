@@ -1,0 +1,137 @@
+@font-face {
+  font-family: 'Source Sans Pro', sans-serif;
+  src: url('fonts/SourceSansPro-Regular.woff') format('woff');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'Source Sans Pro', sans-serif;
+  src: url('fonts/SourceSansPro-Bold.woff') format('woff');
+  font-weight: bold;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  font-family: 'Source Sans Pro', serif;
+}
+
+.hidden {
+  display: none !important;
+}
+
+#disrupt, #disrupt-edit {
+  font-size: 20vh;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+}
+
+#disrupt-edit {
+  border: none;
+  box-sizing: border-box;
+  background: none;
+  font-weight: bold;
+  width: 100vw;
+  color: #dba857;
+  outline: none;
+}
+
+#explanation {
+  margin-top: 2vh;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#explanation p {
+  font-size: 2.5vh;
+  margin-bottom: 2vh;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+#explanation select, #explanation input {
+  padding: 0 2vh;
+  line-height: 5.5vh;
+  height: 5.5vh;
+  border: 1px solid #f9a81a;
+  border-radius: 0.5vh;
+  box-sizing: border-box;
+  font-size: 2.5vh;
+
+  display: block;
+  outline: none;
+
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+#explanation select {
+  background-color: #fff;
+  padding-right: 5vh;
+}
+
+/* Custom dropdown arrow */
+
+#explanation .select {
+  position: relative;
+}
+
+#explanation .select:before, #explanation .select:after {
+  content: '';
+  position: absolute;
+  top: 2.35vh;
+  right: 0;
+  background-color: #f9a81a;
+  width: 1px;
+  height: 1.41vh;
+  z-index: 1;
+}
+
+#explanation .select:before {
+  right: calc(3.5vh - 1px);
+  transform-origin: top left;
+  transform: rotate(-45deg);
+}
+
+#explanation .select:after {
+  right: 1.5vh;
+  transform-origin: top right;
+  transform: rotate(45deg);
+}
+
+#explanation input {
+  background-color: #f9a81a;
+  color: #fff;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+#explanation input:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+.form {
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.form > *:not(:first-child) {
+  margin-left: 2.5vh;
+}
+
+.red {
+  color: #f00;
+}

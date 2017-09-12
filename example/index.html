@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>DISRUPT.JS</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" sizes="16x16" />
+  <link rel="icon" href="favicon@2x.ico" type="image/x-icon" sizes="32x32" />
+  <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+  <h1 id="disrupt" class="disrupt">DISRUPT.JS</h1>
+  <input id="disrupt-edit" class="hidden" value="DISRUPT.JS" spellcheck="false" />
+  <div id="explanation">
+    <p>Disruptive animations for the web.</p>
+    <div id="play-form" class="form">
+      <div class="select">
+        <select id="effects">
+          <option value="dsrpt-horizontal">Horizontal</option>
+          <option value="dsrpt-dissolve">Dissolve</option>
+          <option value="dsrpt-blocks">Blocks</option>
+          <option value="dsrpt-scale-down">Scale Down</option>
+          <option value="dsrpt-rgb-shift loop">RGB Shift</option>
+        </select>
+      </div>
+      <input type="button" value="Try it!" onclick="doDisrupt()" />
+      <input type="button" value="Edit text" onclick="startEdit()" />
+    </div>
+    <div id="edit-form" class="form hidden">
+      <input type="button" value="Finished" onclick="finishEdit()" />
+    </div>
+  </div>
+  <script src="../disrupt.js" type="text/javascript"></script>
+  <script src="script.min.js" type="text/javascript"></script>
+</body>
+
+</html>

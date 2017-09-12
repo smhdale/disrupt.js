@@ -1,0 +1,35 @@
+{
+  "name": "disrupt.js",
+  "version": "1.0.0",
+  "description": "Disruptive animations for the web.",
+  "main": "disrupt.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "start": "watchify src/main.js -o disrupt.js -dv",
+    "build": "browserify src/main.js -t [ babelify --presets [ env ] ] | uglifyjs -cm > disrupt.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smhdale/disrupt.js.git"
+  },
+  "keywords": [
+    "disrupt",
+    "html2canvas",
+    "web"
+  ],
+  "author": "Samuel Dale",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smhdale/disrupt.js/issues"
+  },
+  "homepage": "https://github.com/smhdale/disrupt.js#readme",
+  "devDependencies": {
+    "babel-preset-env": "^1.6.0",
+    "babelify": "^7.3.0",
+    "browserify": "^14.4.0",
+    "uglify-js": "^3.1.0",
+    "watchify": "^3.9.0"
+  }
+}
