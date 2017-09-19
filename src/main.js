@@ -3,53 +3,11 @@ const html2canvas = require('../vendor/html2canvas.min.js')
 class DISRUPT {
   constructor () {
     this.DOMURL = window.URL || window.webkitURL || window
-    this.STYLES = [
-      '-webkit-appearance',
-      '-moz-appearance',
-      'appearance',
-      'background',
-      'background-color',
-      'border',
-      'border-color',
-      'border-radius',
-      'color',
-      'display',
-      'flex',
-      'flex-direction',
-      'justify-content',
-      'font',
-      'font-style',
-      'font-variant',
-      'font-weight',
-      'font-stretch',
-      'font-size',
-      'line-height',
-      'font-family',
-      'float',
-      'position',
-      'margin',
-      'margin-top',
-      'margin-bottom',
-      'margin-left',
-      'margin-right',
-      'padding',
-      'padding-top',
-      'padding-bottom',
-      'padding-left',
-      'padding-right',
-      'text-align',
-      'width',
-      'height'
-    ]
 
     this.targetClass = 'disrupt'
     this.disruptables = {}
 
     this.disruptionCounter = 0
-
-    // Add a container for holding disrupted canvases
-    this.disruptContainer = document.createElement('span')
-    document.body.appendChild(this.disruptContainer)
 
     this.GENERATORS = {
       randomRect: canvas => {
@@ -376,8 +334,11 @@ class DISRUPT {
             this.glitchBars = []
             for (let i = 0; i < numBars; i++) {
               this.glitchBars.push(new function () {
-                this.w = canvas.width
+                this.w = Math.random() * canvas.width
                 this.h = 1
+                let xLeft = canvas.width - this.w
+                // TODO: more chance of this hitting edges
+                this.x = Math.random() * xLeft
                 this.y = 0
                 this.dx = 0
                 this.maxOffset = 20
@@ -435,17 +396,17 @@ class DISRUPT {
             bar.update(progress)
 
             ctx.globalAlpha = 1
-            ctx.clearRect(0, bar.y, bar.w, bar.h)
+            ctx.clearRect(bar.x, bar.y, bar.w, bar.h)
 
             // Re-draw source image but offset
             ctx.globalAlpha = 1/3
             for (let colour of setupData.colours) {
-              ctx.drawImage(colour.image, 0, bar.y, bar.w, bar.h, colour.dx + bar.dx, bar.y, bar.w, bar.h)
+              ctx.drawImage(colour.image, bar.x, bar.y, bar.w, bar.h, bar.x + bar.dx + colour.dx, bar.y, bar.w, bar.h)
             }
 
             if (!setupData.isGlitching(progress)) {
               ctx.globalAlpha = 2/3
-              ctx.drawImage(domImage, 0, bar.y, bar.w, bar.h, 0, bar.y, bar.w, bar.h)
+              ctx.drawImage(domImage, bar.x, bar.y, bar.w, bar.h, bar.x + bar.dx, bar.y, bar.w, bar.h)
             }
           }
         }
@@ -524,7 +485,7 @@ class DISRUPT {
 
             // Position canvas
             this.positionCanvas(elem, disruption.canvas)
-            me.pushDisruptCanvas(disruption.canvas)
+            elem.parentNode.insertBefore(disruption.canvas, elem)
             resolve()
           }
         })
@@ -535,20 +496,17 @@ class DISRUPT {
       me.triggerDisrupt()
     })
   }
-
+  
   positionCanvas (elem, canvas) {
     // Get element bounds
     let bounds = elem.getBoundingClientRect()
+    let parentBounds = elem.parentElement.getBoundingClientRect()
 
     // Position the canvas
     let scroll = document.body.scrollTop
     canvas.style.position = 'absolute'
-    canvas.style.top = `${bounds.top + scroll}px`
-    canvas.style.left = `${bounds.left}px`
-  }
-
-  pushDisruptCanvas (canvas) {
-    this.disruptContainer.appendChild(canvas)
+    canvas.style.top = `${bounds.top + scroll - parentBounds.top}px`
+    canvas.style.left = `${bounds.left - parentBounds.left}px`
   }
 
   triggerDisrupt () {
@@ -613,5 +571,8 @@ class DisruptAnimation {
   }
 }
 
-// Auto-create global instance
+// Auto-create global instance and trigger disruptions
 window.DISRUPT = new DISRUPT()
+
+// TODO: add ability to wait until revealed by scroll
+window.DISRUPT.addDisruptions()
