@@ -334,11 +334,9 @@ class DISRUPT {
             this.glitchBars = []
             for (let i = 0; i < numBars; i++) {
               this.glitchBars.push(new function () {
-                this.w = Math.random() * canvas.width
+                this.w = 0
                 this.h = 1
-                let xLeft = canvas.width - this.w
-                // TODO: more chance of this hitting edges
-                this.x = Math.random() * xLeft
+                this.x = 0
                 this.y = 0
                 this.dx = 0
                 this.maxOffset = 20
@@ -347,9 +345,16 @@ class DISRUPT {
 
                 this.update = progress => {
                   if (progress > this.moveAt) {
+                    this.updateSize()
                     this.updatePos()
                     this.moveAt = progress + this.maxMoveTime * Math.random()
                   }
+                }
+
+                this.updateSize = () => {
+                  this.w = Math.random() * canvas.width
+                  let xLeft = canvas.width - this.w
+                  this.x = Math.random() * xLeft
                 }
 
                 this.updatePos = () => {
@@ -496,7 +501,7 @@ class DISRUPT {
       me.triggerDisrupt()
     })
   }
-  
+
   positionCanvas (elem, canvas) {
     // Get element bounds
     let bounds = elem.getBoundingClientRect()
