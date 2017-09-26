@@ -1,5 +1,56 @@
 const html2canvas = require('../vendor/html2canvas.min.js')
 
+/**
+ * MOUSE class, for basic mouse tracking
+ */
+
+class Mouse {
+  constructor () {
+    this.x = window.innerWidth / 2
+    this.y = window.innerHeight / 2
+
+    window.addEventListener('mousemove', e => {
+      this.x = e.clientX
+      this.y = e.clientY
+    })
+  }
+
+  get pos () {
+    return {
+      x: this.x,
+      y: this.y
+    }
+  }
+}
+
+const MOUSE = new Mouse()
+
+/**
+ * Trigonometry class
+ */
+
+class Trig {
+  static distanceBetween (p1, p2) {
+    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
+  }
+
+  static angleBetween (p1, p2) {
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x)
+  }
+
+  static lengthdirX (len, dir) {
+    return len * Math.cos(dir)
+  }
+
+  static lengthdirY (len, dir) {
+    return len * Math.sin(dir)
+  }
+}
+
+/**
+ * DISRUPT class, for handling disruptions
+ */
+
 class DISRUPT {
   constructor () {
     this.DOMURL = window.URL || window.webkitURL || window
@@ -414,6 +465,130 @@ class DISRUPT {
               ctx.drawImage(domImage, bar.x, bar.y, bar.w, bar.h, bar.x + bar.dx, bar.y, bar.w, bar.h)
             }
           }
+        }
+      },
+
+      /**
+       * RGB split with a slight parallax effect that follows the mouse
+       */
+      'dsrpt-rgb-follow': {
+        setup: (canvas, domImage) => {
+          let ctx = canvas.getContext('2d')
+
+          // Set up colour-shifted images
+          let colourNames = [ '#00f', '#f00', '#0f0' ]
+          let colours = []
+
+
+          for (let i = 0; i < colourNames.length; i++) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+            // Draw coloured background
+            ctx.globalCompositeOperation = 'source-over'
+            ctx.fillStyle = colourNames[i]
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+            // Mask to source image
+            ctx.globalCompositeOperation = 'destination-atop'
+            ctx.drawImage(domImage, 0, 0)
+
+            // Multiply with source image to create alpha channel
+            ctx.globalCompositeOperation = 'multiply'
+            ctx.drawImage(domImage, 0, 0)
+
+            let img = new Image()
+            img.crossOrigin = 'anonymous'
+            img.src = canvas.toDataURL('image/png')
+
+            colours.push(img)
+          }
+
+          // Reset comp mode
+          ctx.globalCompositeOperation = 'source-over'
+
+          // Get canvas bounds
+          let canvBounds = canvas.getBoundingClientRect()
+
+          return {
+            runtime: -1,
+            colours: colours,
+            mouseEffect: {
+              x: canvBounds.left + canvas.width / 2,
+              y: canvBounds.top + canvas.height / 2,
+              len: 0,
+              maxLen: 10,
+              dir: 0,
+              spd: 0.1
+            }
+          }
+        },
+        animate: (canvas, domImage, setupData, progress) => {
+          let ctx = canvas.getContext('2d')
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+          /* ANIMATION CODE */
+
+          let canvasPos = {
+            x: setupData.mouseEffect.x,
+            y: setupData.mouseEffect.y
+          }
+
+          let spd = setupData.mouseEffect.spd
+
+          /* EFFECT DIRECTION */
+
+          let dir = setupData.mouseEffect.dir
+          let dirTarget = Trig.angleBetween(canvasPos, MOUSE.pos)
+
+          // Difference between angles
+          let dirDiff = dirTarget - dir
+          dirDiff = Math.atan2(Math.sin(dirDiff), Math.cos(dirDiff))
+
+          // Move towards target angle
+          dir += dirDiff * spd
+          let wrap = Math.PI * 2
+          while (dir > wrap) { dir -= wrap }
+          while (dir < 0) { dir += wrap }
+
+          /* EFFECT MAGNITUDE */
+
+          // Mouse pos as percentage
+          let mouseMax = Trig.distanceBetween(canvasPos, { x: 0, y: 0})
+          let mouseCurrent = Trig.distanceBetween(canvasPos, MOUSE.pos)
+
+          // Move length towards target
+          let len = setupData.mouseEffect.len
+          let targetLen = (mouseCurrent / mouseMax) * setupData.mouseEffect.maxLen
+          let lenDiff = targetLen - len
+          len += lenDiff * spd
+
+          // Store current dir for next animation loop
+          setupData.mouseEffect.dir = dir
+          setupData.mouseEffect.len = len
+
+          // Draw three RGB shifted imagesa
+
+          // Scale is (maxLen * 2)px smaller than canvas size
+          let smallestAxis = Math.min(canvas.width, canvas.height)
+          let targetSize = smallestAxis - setupData.mouseEffect.maxLen * 2
+          let scale = targetSize / smallestAxis
+
+          // Draw the images offset correctly
+          let scaleW = canvas.width * scale
+          let scaleH = canvas.height * scale
+          let xOrigin = (canvas.width - scaleW) / 2
+          let yOrigin = (canvas.height - scaleH) / 2
+          let dx = Trig.lengthdirX(len, dir)
+          let dy = Trig.lengthdirY(len, dir)
+
+          ctx.globalCompositeOperation = 'lighten'
+
+          let n = setupData.colours.length
+          for (let i = 0; i < n; i++) {
+            let offset = i - 1
+            ctx.drawImage(setupData.colours[i], 0, 0, canvas.width, canvas.height, xOrigin + dx * offset, yOrigin + dy * offset, scaleW, scaleH)
+          }
+          ctx.globalCompositeOperation = 'source-over'
         }
       }
     }
