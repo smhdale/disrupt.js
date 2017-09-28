@@ -653,21 +653,24 @@ class DISRUPT {
       // Use html2canvas to create canvas and image
       return new Promise((resolve, reject) => {
         html2canvas(elem, {
-          onrendered: canvas => {
-            let img = new Image()
-            img.crossOrigin = 'anonymous'
-            img.src = canvas.toDataURL('data/image')
+          background: undefined,
+          letterRendering: true
+        }).then(canvas => {
+          let img = new Image()
+          img.crossOrigin = 'anonymous'
+          img.src = canvas.toDataURL('data/image')
 
-            disruption.image = img
-            disruption.canvas = canvas
+          disruption.image = img
+          disruption.canvas = canvas
 
-            me.disruptables[disruption.id] = disruption
+          me.disruptables[disruption.id] = disruption
 
-            // Position canvas
-            this.positionCanvas(elem, disruption.canvas)
-            elem.parentNode.insertBefore(disruption.canvas, elem)
-            resolve()
-          }
+          // Position canvas
+          this.positionCanvas(elem, disruption.canvas)
+          elem.parentNode.insertBefore(disruption.canvas, elem)
+
+          // Resolve after image has loaded
+          img.onload = resolve
         })
       })
     })
